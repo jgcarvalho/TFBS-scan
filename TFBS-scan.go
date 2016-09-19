@@ -144,6 +144,11 @@ func main() {
 
 	flag.Parse()
 
+	if *fnchr == "" || *fntable == "" {
+		fmt.Println("Please use '-h' to see usage")
+		return
+	}
+
 	ch := readChr(*fnchr)
 	recA := readTable("RECEPTOR NAME", *fntable)
 	chrRecA := recA.Scan("CHROMOSSOME NAME", ch)
