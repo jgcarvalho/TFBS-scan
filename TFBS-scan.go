@@ -128,15 +128,15 @@ func readTable(recname, fn string) *Rec {
 	return &Rec{Name: recname, Length: len(motif), EnergyTable: energy, ProbTable: prob, RevCompEnergyTable: energyRevComp, RevCompProbTable: probRevComp}
 }
 
-func (cr *ChrRec) Output() {
+func (cr *ChrRec) Output(cutoff float32) {
 	fmt.Println("seqname\tstart\tend\tscore\tstrand")
 	lrec := cr.RecLength
 	lscore := len(cr.SenseProb)
 	for i := 0; i < lscore; i++ {
-		if cr.SenseProb[i] > 0.5 {
+		if cr.SenseProb[i] > cutoff {
 			fmt.Printf("%s\t%d\t%d\t%.2f\t+\n", cr.ChrName, i+1, i+lrec, cr.SenseProb[i])
 		}
-		if cr.AntiSenseProb[i] > 0.5 {
+		if cr.AntiSenseProb[i] > cutoff {
 			fmt.Printf("%s\t%d\t%d\t%.2f\t-\n", cr.ChrName, i+1, i+lrec, cr.AntiSenseProb[i])
 		}
 	}
@@ -146,6 +146,7 @@ func (cr *ChrRec) Output() {
 func main() {
 	fnchr := flag.String("chr", "", "chromossome input fasta file")
 	fntable := flag.String("table", "", "receptor - energy table (IMPORTANT: descending order)")
+	cutoff := flag.Float64("c", 0.5, "cut-off")
 
 	flag.Parse()
 
@@ -157,6 +158,6 @@ func main() {
 	chName, chSeq := readChr(*fnchr)
 	rec := readTable("RECEPTOR NAME", *fntable)
 	chrRec := rec.Scan(chName, chSeq)
-	chrRec.Output()
+	chrRec.Output(float32(*cutoff))
 
 }
