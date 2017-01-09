@@ -16,6 +16,7 @@ import (
 type ChrRec struct {
 	ChrName         string
 	RecName         string
+	RecLength       int
 	Seq             string
 	SenseEnergy     []float32
 	SenseProb       []float32
@@ -37,10 +38,11 @@ type Rec struct {
 // }
 
 // Função de scan que atribui os valores de energia e probabilidade para cada base do cromossomo nas fitas senso e antisenso
-func (rec *Rec) Scan(chrname, chr string) ChrRec {
+func (rec *Rec) Scan(chrName, chr string) ChrRec {
 	var chrRec ChrRec
-	chrRec.ChrName = chrname
+	chrRec.ChrName = chrName
 	chrRec.RecName = rec.Name
+	chrRec.RecLength = rec.Length
 	chrRec.Seq = chr
 	chrRec.SenseEnergy = make([]float32, len(chr))
 	chrRec.SenseProb = make([]float32, len(chr))
@@ -79,7 +81,7 @@ func revcomp(s string) string {
 }
 
 // Le o fasta do cromossomo
-func readChr(fn string) string {
+func readChr(fn string) (string, string) {
 	fastaFile, err := os.Open(fn)
 	if err != nil {
 		fmt.Println("Erro ao ler o arquivo", err)
@@ -88,8 +90,7 @@ func readChr(fn string) string {
 	t := linear.NewSeq("", s, alphabet.DNA)
 	reader := fasta.NewReader(fastaFile, t)
 	seq, _ := reader.Read()
-	//fmt.Println("Read -> ", seq.Alphabet())
-	return seq.(*linear.Seq).String()
+	return seq.Name(), seq.(*linear.Seq).String()
 }
 
 // Le a tabela de energias ordenada em ordem decrescente
@@ -128,14 +129,29 @@ func readTable(recname, fn string) *Rec {
 }
 
 // Temporario: imprime os valores de energia e probabilidade dos cromossomos em csv
-func print(s []float32) {
-	fmt.Println("seqname\tstart\tend\tscore")
-	l := 8
-	for i := 0; i < len(s); i++ {
-		if s[i] > 0.5 {
-			fmt.Printf("chrY\t%d\t%d\t%.2f\n", i, i+l-1, s[i])
+// func print(s []float32) {
+// 	fmt.Println("seqname\tstart\tend\tscore")
+// 	l := 8
+// 	for i := 0; i < len(s); i++ {
+// 		if s[i] > 0.5 {
+// 			fmt.Printf("chrY\t%d\t%d\t%.2f\n", i, i+l-1, s[i])
+// 		}
+// 	}
+// }
+
+func (cr *ChrRec) Output() {
+	fmt.Println("seqname\tstart\tend\tscore\tstrand")
+	lrec := cr.RecLength
+	lscore := len(cr.SenseProb)
+	for i := 0; i < lscore; i++ {
+		if cr.SenseProb[i] > 0.5 {
+			fmt.Printf("%s\t%d\t%d\t%.2f\t+\n", cr.ChrName, i+1, i+lrec, cr.SenseProb[i])
+		}
+		if cr.AntiSenseProb[i] > 0.5 {
+			fmt.Printf("%s\t%d\t%d\t%.2f\t-\n", cr.ChrName, i+1, i+lrec, cr.AntiSenseProb[i])
 		}
 	}
+
 }
 
 func main() {
@@ -149,10 +165,12 @@ func main() {
 		return
 	}
 
-	ch := readChr(*fnchr)
-	recA := readTable("RECEPTOR NAME", *fntable)
-	chrRecA := recA.Scan("CHROMOSSOME NAME", ch)
-	print(chrRecA.SenseProb)
+	chName, chSeq := readChr(*fnchr)
+	rec := readTable("RECEPTOR NAME", *fntable)
+	chrRec := rec.Scan(chName, chSeq)
+	chrRec.Output()
+
+	// print(chrRecA.SenseProb)
 
 	// ch := readChr("/home/jgcarvalho/gocode/src/github.com/jgcarvalho/TFBS-scan/Hs.chrY.fasta")
 
