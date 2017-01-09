@@ -128,17 +128,6 @@ func readTable(recname, fn string) *Rec {
 	return &Rec{Name: recname, Length: len(motif), EnergyTable: energy, ProbTable: prob, RevCompEnergyTable: energyRevComp, RevCompProbTable: probRevComp}
 }
 
-// Temporario: imprime os valores de energia e probabilidade dos cromossomos em csv
-// func print(s []float32) {
-// 	fmt.Println("seqname\tstart\tend\tscore")
-// 	l := 8
-// 	for i := 0; i < len(s); i++ {
-// 		if s[i] > 0.5 {
-// 			fmt.Printf("chrY\t%d\t%d\t%.2f\n", i, i+l-1, s[i])
-// 		}
-// 	}
-// }
-
 func (cr *ChrRec) Output() {
 	fmt.Println("seqname\tstart\tend\tscore\tstrand")
 	lrec := cr.RecLength
@@ -169,27 +158,5 @@ func main() {
 	rec := readTable("RECEPTOR NAME", *fntable)
 	chrRec := rec.Scan(chName, chSeq)
 	chrRec.Output()
-
-	// print(chrRecA.SenseProb)
-
-	// ch := readChr("/home/jgcarvalho/gocode/src/github.com/jgcarvalho/TFBS-scan/Hs.chrY.fasta")
-
-	// recA := readTable("P10589", "/home/jgcarvalho/gocode/src/github.com/jgcarvalho/TFBS-scan/P10589.csv")
-	// recB := readTable("P19793", "/home/jgcarvalho/gocode/src/github.com/jgcarvalho/TFBS-scan/P19793.csv")
-	// chrRecA := recA.Scan("chrY", ch)
-	// chrRecB := recB.Scan("chrY", ch)
-	// fmt.Println("Done")
-	// fmt.Println(scoreEnergy[100000:100100])
-
-	// fmt.Println(chrRecA.SenseProb[100000:100100])
-	// fmt.Println(chrRecB.SenseProb[100000:100100])
-
-	// fmt.Println(chrData.SenseEnergy[100000:100100])
-	// fmt.Println(chrData.SenseProb[100000:100100])
-	// fmt.Println(chrData.AntiSenseEnergy[100000:100100])
-	// fmt.Println(chrData.AntiSenseProb[100000:100100])
-	// fmt.Println(chrRecA.SenseProb)
-
-	// print(chrRecA.SenseProb)
 
 }
